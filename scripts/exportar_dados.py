@@ -1,3 +1,4 @@
+import csv
 import json
 import os
 import urllib.parse
@@ -182,6 +183,59 @@ with open(
         indent=2
     )
 
+# ============================================================
+# CSV CONSOLIDADO
+# ============================================================
+
+with open(
+    f"{PASTA_SAIDA}/respostas.csv",
+    "w",
+    newline="",
+    encoding="utf-8-sig"
+) as arquivo:
+
+    campos = [
+        "id",
+        "criado_em",
+        "escola",
+        "trajeto_ida",
+        "trajeto_volta"
+    ]
+
+    escritor = csv.DictWriter(
+        arquivo,
+        fieldnames=campos,
+        delimiter=";"
+    )
+
+    escritor.writeheader()
+
+    for resposta in respostas:
+
+        escritor.writerow({
+
+            "id":
+                resposta.get("id"),
+
+            "criado_em":
+                resposta.get("criado_em"),
+
+            "escola":
+                resposta.get("escola"),
+
+            "trajeto_ida":
+                json.dumps(
+                    resposta.get("trajeto_ida"),
+                    ensure_ascii=False
+                ) if resposta.get("trajeto_ida") else "",
+
+            "trajeto_volta":
+                json.dumps(
+                    resposta.get("trajeto_volta"),
+                    ensure_ascii=False
+                ) if resposta.get("trajeto_volta") else ""
+
+        })
 
 print(
     f"Exportação concluída: "
