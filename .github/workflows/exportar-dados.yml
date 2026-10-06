@@ -1,0 +1,42 @@
+name: Exportar dados da pesquisa
+
+on:
+  # Permite executar manualmente pela aba Actions
+  workflow_dispatch:
+
+  # Também executa automaticamente todos os dias
+  schedule:
+    - cron: "0 6 * * *"
+
+jobs:
+  exportar:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      # Baixa os arquivos do seu repositório
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      # Prepara o Python
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Executa o arquivo que criamos no passo 7
+      - name: Exportar dados do Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+        run: python scripts/exportar_dados.py
+
+      # Guarda os JSON/GeoJSON gerados
+      - name: Armazenar arquivos exportados
+        uses: actions/upload-artifact@v4
+        with:
+          name: dados-pesquisa
+          path: exports/
+          retention-days: 30
